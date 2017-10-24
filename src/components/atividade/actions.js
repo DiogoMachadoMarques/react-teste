@@ -13,3 +13,17 @@ export function listaAtividades(operacaoId) {
             })
     }
 }
+
+export function enviarArquivo(file) {
+    return (dispatch) => {
+        dispatch({ type: constants.ATIVIDADES_UPLOAD_REQUEST});
+        console.log("enviarArquivo");
+        api.enviarArquivo(file)
+            .then(res => {
+                console.log(res);
+                dispatch({ type: constants.ATIVIDADES_UPLOAD_SUCCESS, payload: res.data });
+            }).catch(error => {
+                dispatch({ type: constants.ATIVIDADES_UPLOAD_ERROR, payload: "Erro" });
+            })
+    }
+}

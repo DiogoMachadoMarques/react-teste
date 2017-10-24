@@ -1,9 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { listaAtividades } from '../actions';
+import { listaAtividades, enviarArquivo } from '../actions';
+import { reduxForm, reset as resetForm } from 'redux-form';
 import AtividadesList from './AtividadesList';
 import TextField from 'material-ui/TextField';
+
+const formName = 'ProjetoUploadForm';
 
 class AtividadesListContainer extends React.Component {
 
@@ -11,13 +14,28 @@ class AtividadesListContainer extends React.Component {
         super(props);
         this.state = {
             modalPermissaoOpen: "false",
+            selectedFile: null,
         };
     }
 
     handlePesquisar(event) {
         // if (event.target.value) {
-            this.props.listaAtividades(event.target.value);
+        this.props.listaAtividades(event.target.value);
         // }
+    }
+
+    onDrop(files) {
+        console.log(files);
+        this.setState({ selectedFile: files[0] });
+    }
+
+    onSubmit() {
+        this.props.enviarArquivo(this.state.selectedFile).then(() => {
+            console.log("Enviou arquivo");
+        }).catch((error) => {
+            console.log(error);
+        });
+        console.log("aqui");
     }
 
     componentWillMount() {
@@ -35,7 +53,9 @@ class AtividadesListContainer extends React.Component {
 
                 <AtividadesList {...this.props}
                     lista={this.props.lista}
-                    loading={this.props.loading} />
+                    loading={this.props.loading}
+                    onDrop={this.onDrop.bind(this)}
+                    onSubmit={this.onSubmit.bind(this)} />
             </div>
         );
     }
@@ -48,11 +68,17 @@ const mapStateToProps = (state) => ({
 
 AtividadesListContainer.propTypes = {
     listaAtividades: PropTypes.func.isRequired,
+    enviarArquivo: PropTypes.func.isRequired
 };
+
+const form = reduxForm({
+    form: formName
+});
 
 export default connect(
     mapStateToProps,
     {
         listaAtividades,
+        enviarArquivo
     }
-)(AtividadesListContainer);
+)(form(AtividadesListContainer));
